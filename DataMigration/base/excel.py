@@ -80,9 +80,14 @@ class Excel:
 
     # 向单元格中通过末尾追加一行数据
     def write_by_append(self, ws, data: list):
+        """
+        新增去重逻辑
+        """
         try:
-            ws.append(data)
-            logging.info(f"successful to write {data} in {self.excel_name}.")
+            sheet_data = [[c.value for c in row] for row in ws.rows]
+            if data not in sheet_data or str(data).__contains__("None"):
+                ws.append(data)
+                logging.info(f"successful to write {data} in {self.excel_name}.")
             return ws
         except PermissionError:
             logging.error(f'please retry after close {self.excel_name}.')

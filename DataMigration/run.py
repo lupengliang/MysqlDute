@@ -99,18 +99,12 @@ class Run:
         if len(obDatabase) != len(myDatabase):
             logging.error("please config database count to same.")
             for database_name in obDatabase:
-                try:
-                    if myDatabase.index(database_name):
-                        pass
-                except ValueError:
+                if database_name not in myDatabase:
                     logging.error(f"mysql server no database {database_name}.")
                     execl.write_by_append(ws, ["mysql--"+database_name, "-", "-"])
 
             for database_name in myDatabase:
-                try:
-                    if obDatabase.index(database_name):
-                        pass
-                except ValueError:
+                if database_name not in obDatabase:
                     logging.error(f"ob server no database {database_name}.")
                     execl.write_by_append(ws, ["ob--" + database_name, "-", "-"])
         execl.save_excel(wb)
@@ -125,17 +119,11 @@ class Run:
         ob_tables = Run.get_database_tables(ob_client, database)
         if len(my_tables) != len(ob_tables):
             for table in ob_tables:
-                try:
-                    if my_tables.index(table):
-                        pass
-                except ValueError:
+                if table not in my_tables:
                     execl.write_by_append(ws, ["mysql--" + database, table, "-"])
 
             for table in my_tables:
-                try:
-                    if ob_tables.index(table):
-                        pass
-                except ValueError:
+                if table not in ob_tables:
                     execl.write_by_append(ws, ["ob--" + database, table, "-"])
         execl.save_excel(wb)
 
@@ -166,7 +154,6 @@ class Run:
         wb = execl.load_excel()
         my_table_rows = Run.get_table_count(my_client, table_name)
         ob_table_rows = Run.get_table_count(ob_client, table_name)
-        flag = False
         for i in range(my_table_rows):
             my_data_one = Run.get_table_one(my_client, table_name, i)
             ob_data_one = Run.get_table_one(ob_client, table_name, i)
@@ -174,10 +161,8 @@ class Run:
                 ws = wb[database]
                 execl.write_by_append(ws, ["mysql -- " + database, table_name, str(my_data_one)])
                 execl.write_by_append(ws, ["ob -- " + database, table_name, str(ob_data_one)])
-                if not flag:
-                    ws = wb["结果总览"]
-                    execl.write_by_append(ws, [database, table_name, "否"])
-                    flag = True
+                ws = wb["结果总览"]
+                execl.write_by_append(ws, [database, table_name, "否"])
         for j in range(ob_table_rows):
             my_data_one = Run.get_table_one(my_client, table_name, j)
             ob_data_one = Run.get_table_one(ob_client, table_name, j)
@@ -185,10 +170,8 @@ class Run:
                 ws = wb[database]
                 execl.write_by_append(ws, ["mysql -- " + database, table_name, str(my_data_one)])
                 execl.write_by_append(ws, ["ob -- " + database, table_name, str(ob_data_one)])
-                if flag:
-                    ws = wb["结果总览"]
-                    execl.write_by_append(ws, [database, table_name, "否"])
-                    flag = False
+                ws = wb["结果总览"]
+                execl.write_by_append(ws, [database, table_name, "否"])
         execl.save_excel(wb)
 
 
